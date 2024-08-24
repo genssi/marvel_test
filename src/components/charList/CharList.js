@@ -1,4 +1,4 @@
-import {Component} from 'react';
+import React, {Component} from 'react';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import MarvelService from '../../services/MarvelService';
@@ -6,6 +6,7 @@ import './charList.scss';
 import PropTypes from "prop-types";
 
 class CharList extends Component {
+    myRef = [];
 
     state = {
         charList: [],
@@ -13,7 +14,7 @@ class CharList extends Component {
         error: false,
         newItemLoading: false,
         offset: 210,
-        charEnded: false
+        charEnded: false,
     }
     
     marvelService = new MarvelService();
@@ -57,20 +58,47 @@ class CharList extends Component {
         })
     }
 
+    focusCharItem = (i) => {
+        if (this.myRef[i].current) {
+            this.myRef[i].current.style.boxShadow = '0 5px 20px #9F0013';
+            this.myRef[i].current.style.transform = 'translateY(-8px)';
+        }
+    }
+
+    unFocusCharItem = (i) => {
+        if (this.myRef[i].current) {
+            this.myRef[i].current.style.boxShadow = 'none';
+            this.myRef[i].current.style.transform = 'none';
+        }
+    }
+
+    handleClick = (item, i) => {
+        this.props.onCharSelected(item.id);
+        this.focusCharItem(i);
+    }
+
     // Этот метод создан для оптимизации, 
     // чтобы не помещать такую конструкцию в метод render
     renderItems(arr) {
-        const items =  arr.map((item) => {
+        const items =  arr.map((item, i) => {
             let imgStyle = {'objectFit' : 'cover'};
             if (item.thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg') {
                 imgStyle = {'objectFit' : 'unset'};
+            }
+
+            if (!this.myRef[i]) {
+                this.myRef[i] = React.createRef();
             }
             
             return (
                 <li 
                     className="char__item"
                     key={item.id}
-                    onClick={() => this.props.onCharSelected(item.id)}>
+                    ref={this.myRef[i]}
+                    tabIndex={0}
+                    onClick={() => this.handleClick(item, i)}
+                    onFocus={() => this.focusCharItem(i)}
+                    onBlur={() => this.unFocusCharItem(i)}>
                         <img src={item.thumbnail} alt={item.name} style={imgStyle}/>
                         <div className="char__name">{item.name}</div>
                 </li>
@@ -91,14 +119,14 @@ class CharList extends Component {
         const items = this.renderItems(charList);
 
         const errorMessage = error ? <ErrorMessage/> : null;
-        const spinner = loading ? <Spinner/> : null;
+        const spinner = loading || newItemLoading ? <Spinner/> : null;
         const content = !(loading || error) ? items : null;
 
         return (
             <div className="char__list">
                 {errorMessage}
-                {spinner}
                 {content}
+                {spinner}
                 <button 
                     className="button button__main button__long"
                     disabled={newItemLoading}
