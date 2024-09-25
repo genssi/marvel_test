@@ -72,7 +72,7 @@ const ComicsList = () => {
                 onClick={() => onRequest(offset)}
                 >
                 <div className="inner">load more</div>
-            </button>
+            </button>ß
         </div>
     )
 }
