@@ -34,3 +34,18 @@
         }
     }
 }
+
+.fade_comic-enter {
+    opacity: 0;
+}
+.fade_comic-enter-active {
+    opacity: 1;
+    transition: opacity 400ms ease-in;
+}
+.fade_comic-exit {
+    opacity: 1;
+}
+.fade_comic-exit-active {
+    opacity: 0;
+    transition: opacity 400ms ease-out;
+}

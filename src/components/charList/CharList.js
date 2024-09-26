@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 import Spinner from "../spinner/Spinner";
 import ErrorMessage from "../errorMessage/ErrorMessage";
 import useMarvelService from "../../services/MarvelService";
@@ -14,6 +15,8 @@ const CharList = (props) => {
     const [charEnded, setCharEnded] = useState(false);
 
     const { loading, error, getAllCharacters } = useMarvelService();
+
+    const duration = 400;
 
     useEffect(() => {
         onRequest(offset, true);
@@ -59,40 +62,48 @@ const CharList = (props) => {
     // Этот метод создан для оптимизации,
     // чтобы не помещать такую конструкцию в метод render
     function renderItems(arr) {
-        const items = arr.map((item, i) => {
-            let imgStyle = { objectFit: "cover" };
-            if (
-                item.thumbnail ===
-                "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg"
-            ) {
-                imgStyle = { objectFit: "unset" };
-            }
-
-            if (!myRef[i]) {
-                myRef[i] = React.createRef();
-            }
-
-            return (
-                <li
-                    className="char__item"
-                    key={item.id}
-                    ref={myRef[i]}
-                    tabIndex={0}
-                    onClick={() => handleClick(item, i)}
-                    onFocus={() => focusCharItem(i)}
-                    onBlur={() => unFocusCharItem(i)}
-                >
-                    <img
-                        src={item.thumbnail}
-                        alt={item.name}
-                        style={imgStyle}
-                    />
-                    <div className="char__name">{item.name}</div>
-                </li>
-            );
-        });
-        // А эта конструкция вынесена для центровки спиннера/ошибки
-        return <ul className="char__grid">{items}</ul>;
+        return (
+            <TransitionGroup component="ul" className="char__grid">
+                {arr.map((item, i) => {
+                    let imgStyle = { objectFit: "cover" };
+                    if (
+                        item.thumbnail ===
+                    "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg"
+                    ) {
+                        imgStyle = { objectFit: "unset" };
+                    }
+        
+                    if (!myRef[i]) {
+                        myRef[i] = React.createRef();
+                    }
+        
+                    return (
+                        <CSSTransition
+                            key={item.id}
+                            timeout={duration}
+                            classNames="fade"
+                        >
+                            <li
+                            className="char__item"
+                            key={item.id}
+                            ref={myRef[i]}
+                            tabIndex={0}
+                            onClick={() => handleClick(item, i)}
+                            onFocus={() => focusCharItem(i)}
+                            onBlur={() => unFocusCharItem(i)}
+                            >
+                                <img
+                                    src={item.thumbnail}
+                                    alt={item.name}
+                                    style={imgStyle}
+                                />
+                                <div className="char__name">{item.name}</div>
+                            </li>
+                        </CSSTransition>
+                    );
+            })}
+            </TransitionGroup>
+        )
     }
 
     const items = renderItems(charList);
