@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import useMarvelService from "../../services/MarvelService";
 import { Link, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet";
+import useMarvelService from "../../services/MarvelService";
 import AppBanner from "../appBanner/AppBanner";
 import ErrorMessage from "../errorMessage/ErrorMessage";
 import Spinner from "../spinner/Spinner";
@@ -43,6 +44,10 @@ const View = ({ char }) => {
     const { name, description, thumbnail } = char;
     return (
         <>
+            <Helmet>
+                <title>{name}</title>
+                <meta name="description" content={`${name} information`}/>
+            </Helmet>
             <AppBanner title={name} />
             <div className="single-char">
                 <img src={thumbnail} alt={name} className="single-char__img" />
