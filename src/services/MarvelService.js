@@ -17,6 +17,17 @@ const useMarvelService = () => {
         return _transformCharacter(res.data.results[0]);
     };
 
+    const getCharacterByName = async (name) => {
+        const res = await request(`${_apiBase}characters?name=${name}&${_apiKey}`);
+        
+        // Исправил: проверка, если персонаж не найден
+        if (res.data.results.length > 0) {
+            return _transformCharacter(res.data.results[0]);
+        } else {
+            return null; // Возвращаем null, если персонажа нет
+        }
+    }
+
     const getAllComics = async (offset = 0) => {
         const res = await request (`${_apiBase}comics?orderBy=issueNumber&limit=8&offset=${offset}&${_apiKey}`);
         return res.data.results.map(_trasformComics);
@@ -28,8 +39,8 @@ const useMarvelService = () => {
     };
 
     const _transformCharacter = (char) => {
-        if (char.description.length > 210) {
-            char.description = char.description.slice(0, 210) + '...';
+        if (char.description.length > 400) {
+            char.description = char.description.slice(0, 400) + '...';
         } else if (!char.description || char.description.length === 0) {
             char.description = 'NO DESCRIPTION AVAILABLE!';
         };
@@ -49,7 +60,7 @@ const useMarvelService = () => {
         return {
             id: comics.id,
             title: comics.title,
-            descrription: comics.description || 'There is no description',
+            description: comics.description || 'There is no description',
             pageCount: comics.pageCount ? `${comics.pageCount} pages` : 'No information about the number of pages',
             thumbnail: comics.thumbnail.path + '.' + comics.thumbnail.extension,
             language: comics.textObjects[0]?.language || "en-us",
@@ -57,7 +68,7 @@ const useMarvelService = () => {
         };
     };
 
-    return {loading, error, getAllCharacters, getCharacter, clearError, getAllComics, getComic};
+    return {loading, error, getAllCharacters, getCharacter, clearError, getAllComics, getComic, getCharacterByName};
 };
 
 export default useMarvelService;
